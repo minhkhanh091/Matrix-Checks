@@ -1,0 +1,593 @@
+# MATRIX ANTICHEAT CONFIG
+# ┌──────────────────────────────┐
+# │   Author: jaxos, _master_    │
+# │  Last modified: 20/12/2021   │
+# └──────────────────────────────┘
+
+
+#─── KillAura ───────────────────────────────────────╮
+# Prevents the player from using the KillAura/AimBot │
+#────────────────────────────────────────────────────╯
+killaura:
+  # Enable KillAura check?
+  enable: true
+
+  # List of the various KillAura check modules of Matrix
+  modules:
+    # Check if the player's battle is following the vanilla protocol
+    protocol:
+      cancel_illegal_hit: true
+      vl_weight: 7
+
+      # Check if the player's attacking comply with the vanilla protocol/mechanism
+      check_protocol_1: true
+      check_protocol_2: true
+      check_protocol_3: true
+      check_protocol_4: true
+      check_protocol_5: true
+      check_protocol_6: true
+      check_protocol_7: true
+      check_protocol_8: true
+
+    # Check if the player shows aiming characteristics similar to aimbot
+    aimbot:
+      vl_weight: 10
+      cancel_hit: false
+
+      check_aimbot_sync: true
+      check_aimbot_shake: true
+      check_aimbot_snap: true
+      check_aimbot_sensitivity: false
+      check_aimbot_acceleration: true
+      check_aimbot_bad_rotation: true
+      check_aimbot_mouse_speed: false
+
+    npc:
+      enable: false
+      vl_weight: 5
+      async: false
+      real_entity_id: false
+      only_command_trigger: false
+      visible: false
+      force_random_name: true
+      check_ticks:
+        base: 0
+        attack_add: 0
+        hit_bot_add: 0
+      movement:
+        distance_base: 0
+        distance_random_size: 0
+        distance_attack_base: 0
+        move_up_after_attack: false
+
+    # Critical Hit check, Prevent players from making abnormal crit attacks
+    critical:
+      # Enable this module?
+      enable: true
+
+      # How much VL should the player get after being flagged by this module?
+      vl_weight: 3
+
+    # Strafe Check
+    strafe:
+      enable: true
+      vl_weight: 4
+      cancel_move: false
+
+    # Combine check
+    combine:
+      aimbot_with_reach:
+        time: 5000
+        condition:
+          - 'ka.abt.magic'
+          - 'hb.reach'
+          - 'hb.miss'
+        action: 8
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 5
+
+  # Violation Thresholds
+  commands:
+    20: 'matrix notify &f[&c!&f] &a%player% &7(KillAura) -h %gp_c_hm% -c %gp_r_cc%'
+    35: 'matrix notify &f[&c!&f] &e%player% &7(KillAura) -h %gp_c_hm% -c %gp_r_cc%'
+    42: 'matrix notify &f[&c!&f] &6%player% &7(KillAura) -h %gp_c_hm% -c %gp_r_cc%'
+    54: 'matrix notify &f[&c!&f] &c%player% &7(KillAura) -h %gp_c_hm% -c %gp_r_cc%'
+    65: 'coc %player% if (-ping-<50&-tps->19.98)&-vl:move->38 do matrix kick %player% Unfair Advantage'
+    82: 'coc %player% if (-ping-<80&-tps->19.85)&-vl:move->38 do matrix kick %player% Unfair Advantage'
+    98: 'coc %player% if (-ping-<120&-tps->19.85)&-vl:move->38 do matrix kick %player% Unfair Advantage'
+    114: 'matrix kick %player% Unfair Advantage'
+
+#─── Hitbox ───────────────────────────────────────╮
+# prevents players from using HitBox, Angle, Reach │
+#──────────────────────────────────────────────────╯
+hitbox:
+  # Enable HitBox check?
+  enable: true
+
+  # Maximum reach distance (default: 3.15)
+  max_reach: 3.075
+
+  # The tick length of the traceback when calculating the hitbox
+  trace_back_length: 12
+
+  # Whether Matrix should cancel the player's attack after detecting the player's cheating?
+  # There are these choices:
+  #  1. none   -  do nothing
+  #  2. silent -  set damage to zero (Recommend)
+  #  3. cancel -  cancel the attack
+  cancel_way: silent
+
+  # Violations needed to cancel illegal hits
+  cancel_vl: 7
+
+  # Violation weights
+  vl_weights:
+    miss_player_hitbox: 2
+    reach_target_standing: 6
+    reach_target_moving: 2
+
+  # Should dynamic VL weight be enabled?
+  # If enabled, the VL weight will be calculated based on the player's reach
+  # Note: dynamic VL = (current_reach - max_reach) * expander
+  dynamic_vl:
+    enable: true
+    expander: 10
+    min_vl: 5
+    max_vl: 19
+
+  # What is the maximum increase in VL in a short time?
+  # Due to the instability of the network connection, HitBox detection may cause false alarms when a lag spike occurs
+  # This option limits the maximum increase in VL in "5 seconds"
+  max_burst_vl: 12
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 5
+    amount: 2
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    10: 'matrix notify &f[&a!&f] &a%player% &7(Hitbox) -h %gp_c_hm% -c %gp_r_cc%'
+    13: 'matrix notify &f[&e!&f] &e%player% &7(Hitbox) -h %gp_c_hm% -c %gp_r_cc%'
+    15: 'matrix notify &f[&6!&f] &6%player% &7(Hitbox) -h %gp_c_hm% -c %gp_r_cc%'    
+    20: 'matrix notify &f[&c!&f] &c%player% &7(Hitbox) -h %gp_c_hm% -c %gp_r_cc%'
+    30: 'coc %player% if (-ping-<80&-tps->19.85)&(-vl:killaura->20&-vl:move->55) do matrix notify &a%player% &7was banned'
+    40: 'coc %player% if (-ping-<140&-tps->19.85)&(-vl:killaura->20&-vl:move->55) do matrix notify &a%player% &7was banned'
+    50: 'matrix notify &a%player% &7was banned'
+
+click:
+  enable: false
+  max_cps: 15
+  check_cps: true
+  check_swing: true
+  check_timing: true
+  dynamic_cps_vl_weight: true
+  buffer_size: 20
+  decay:
+    interval: 15
+    amount: 5
+  commands:
+    10: ''
+
+#─── Movement ────────────╮
+# prevents the player from│
+# moving abnormally       │
+#─────────────────────────╯
+move:
+  # Enable this check?
+  enable: true
+
+  # Should Matrix block NoSlow cheating?
+  check_noslow: true
+
+  # When the player reaches this VL, start to pull back the player's abnormal movement
+  cancel_vl: -1
+
+  # Should Matrix apply damage to the player when the player is setback?
+  apply_damage: false
+
+  # Should Matrix handle knockback more strictly?
+  strict_kb_handling: false
+
+  # Should Matrix allow the player to stand on the cancelled block?
+  # I recommend do not turn on it, it will slightly affect the performance
+  # and caused some bypass.
+  # https://www.youtube.com/watch?v=9lNXNW6Phk0&t=133s
+  allow_bpe_bridge: false
+
+  # Should Matrix check the speed of players with flying ability?
+  # This may cause the flight capability of some "PvP clients" to be restricted
+  check_flying_players: false
+
+  # If Matrix believes that the player must be cheating, Matrix will ignore
+  # the current VL and directly setback the player. But it's not 100% accurate,
+  # so you can choose which situations matrix should force setback players
+  force_setback_situations:
+    high_jump: true
+    ground_spoof_jump: true
+    bad_jumps: false
+    air_accel: true
+    air_mdf: true
+    step: false
+
+  # Should Matrix teleport the player into the void if the player cheats on the void?
+  allow_setback_to_void: false
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 25
+
+  # Violation Thresholds
+  commands:
+    40: 'matrix notify &f[&a!&f] &a%player% &7(Move) -h %gp_c_hm% -c %gp_r_cc%'
+    64: 'matrix notify &f[&e!&f] &e%player% &7(Move) -h %gp_c_hm% -c %gp_r_cc%'
+    82: 'matrix notify &f[&6!&f] &6%player% &7(Move) -h %gp_c_hm% -c %gp_r_cc%'    
+    104: 'matrix notify &f[&c!&f] &c%player% &7(Move) -h %gp_c_hm% -c %gp_r_cc%'
+    130: 'coc %player% if -ping-<95 do matrix notify &a%player% &7was banned'
+    175: 'coc %player% if -ping-<120 do matrix notify &a%player% &7was banned'
+    235: 'coc %player% if -ping-<185 do matrix notify &a%player% &7was banned'
+    289: 'matrix notify &a%player% &7was banned'
+
+
+#─── BadPackets ──────────────────────────────╮
+# Prevents player from sending too many       │
+# movement packets or sending illegal packets │
+#─────────────────────────────────────────────╯
+badpackets:
+  # Enable this check?
+  enable: true
+
+  # Timer check settings
+  timer:
+    # Use the old timer to check? It is more stable, but weaker (not recommend)
+    use_legacy_timer_check: false
+
+    # Minimum timer balance value (ticks)
+    # The lower the value, the fewer false positives, but it also means that it is easier to bypass
+    min_balance: -30.0
+
+    # Speed up timer check
+    # If the playerâ€™s data packet interval shows a constant trend,
+    # accelerate the growth of the balance, so that the timer can be detected faster
+    accelerate_timer_check: true
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 2
+    amount: 1
+
+  # Violation Thresholds
+  commands:
+    80: 'coc %player% if -ping-<80 do matrix kick %player% Unfair Advantage'
+    150: 'coc %player% if -ping-<120 do matrix kick %player% Unfair Advantage'
+    185: 'matrix kick %player% Unfair Advantage'
+
+#─── BadPackets ───────────────────────╮
+# prevents the player from speeding up │
+# certain actions                      │
+#──────────────────────────────────────╯
+delay:
+  # Enable this check?
+  enable: true
+
+  # Should Matrix block player actions when cheating is detected?
+  cancel_action: false
+
+  # Modules List
+  # You can define the VL weight of each module, and -1 equals to disable it
+  check_healing: 1
+  check_using_items: 6
+  check_using_bow: 6
+  check_auto_splash: -1
+  check_inventory_action: 4
+  check_auto_totem: 5
+  check_fast_throw: 5
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 2
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    40: 'matrix notify &f[&a!&f] &a%player% &7(Delay) -h %gp_c_hm% -c %gp_r_cc%'
+    64: 'matrix notify &f[&e!&f] &e%player% &7(Delay) -h %gp_c_hm% -c %gp_r_cc%'
+    82: 'matrix notify &f[&6!&f] &6%player% &7(Delay) -h %gp_c_hm% -c %gp_r_cc%'
+
+#─── Block ──────────────────────────╮
+# Prevents the player from breaking, │
+# placing block quickly              │
+#────────────────────────────────────╯
+block:
+  # Enable this check?
+  enable: false
+  cancel_vl: 0
+  modules:
+    fastbreak:
+      enable: false
+      vl_weight: 0
+    fastplace:
+      enable: false
+      vl_weight: 0
+      max_place_per_second: 0
+    noswing:
+      enable: false
+      vl_weight: 1
+    abort:
+      enable: false
+      vl_weight: 0
+  decay:
+    interval: 0
+    amount: 0
+  commands:
+    10: ''
+
+#─── Scaffold ──────────────────────────╮
+# Prevent players bridging or towering  │
+# faster than average                   │
+#───────────────────────────────────────╯
+scaffold:
+  enable: true
+
+  cancel_vl: -1
+
+  modules:
+    place:
+      enable: true
+
+      # How many violations will be added when triggered?
+      vl_weight: 9
+
+    # Delay check: Detects players bridging too fast.
+    delay:
+      enable: true
+
+      # Cancels illegal block placement.
+      cancel_place: false
+
+      # Minimum amount of time between bridge block placement (ticks)
+      # Turn this down if there are too many false positives.
+      min_delay: 5.10
+
+      # How many violations will be added when triggered?
+      vl_weight: 4
+
+    # Right CPS check: Same as AutoClicker/macro check but for right-clicks.
+    right_cps:
+      enable: false
+
+      # How many violations will be added when triggered?
+      vl_weight: 5
+
+    # Tower check: Detects players towering too fast.
+    tower:
+      enable: true
+
+      # How many violations will be added when triggered?
+      vl_weight: 2
+
+    combine:
+      scaffold_with_autojump:
+        time: 5000
+        condition:
+          - 'delay.inv'
+          - 'sfd.dly'
+        action: 8
+
+  # Decay time and amount for violations.
+  # Controls the speed in which violations expire.
+  decay:
+    # Time it takes before removing violations.
+    interval: 6
+
+    # How many violations to remove.
+    amount: 2
+
+  commands:
+    8: 'matrix notify &f[&a!&f] &a%player% &7(Scaffold) -h %gp_c_hm% -c %gp_r_cc%'
+    20: 'matrix notify &f[&e!&f] &e%player% &7(Scaffold) -h %gp_c_hm% -c %gp_r_cc%'
+    30: 'matrix notify &f[&6!&f] &6%player% &7(Scaffold) -h %gp_c_hm% -c %gp_r_cc%'
+    36: 'matrix notify &f[&c!&f] &c%player% &7(Scaffold) -h %gp_c_hm% -c %gp_r_cc%'
+
+#─── Jesus ─────────────────────────────────────╮
+# prevents the player from moving too quickly   │ 
+# in liquids, or walking on liquid              │
+#───────────────────────────────────────────────╯
+jesus:
+  # Enable this check?
+  enable: true
+
+  # Violations needed to cancel illegal movements (-1 = never cancel)
+  cancel_vl: -1
+
+  # Should Matrix ignore whether player is in swimming?
+  # This feature can prevent swimming status desync
+  ignore_swim_pose: false
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 7
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    14: 'coc %player% if -lp-<34 do matrix notify %gp_c_me%%player% illegally moved%gp_o_an%%gp_c_sm%(14VL) -h %gp_c_hm% -c %gp_r_cc% Jesus'
+    20: 'coc %player% if -lp-<48 do matrix notify %gp_c_me%%player% illegally moved%gp_o_an%%gp_c_md%(20VL) -h %gp_c_hm% -c %gp_r_cc% Jesus'
+    40: 'matrix notify %gp_c_me%%player% illegally moved%gp_o_an%%gp_c_hg%(40VL) -h %gp_c_hm% -c %gp_r_cc% Jesus'
+    50: 'coc %player% if -lp-<33 do %gp_r_ki% %player% %gp_o_pr%%gp_h_js%%gp_o_su%%gp_n_fp%'
+    64: '%gp_r_ki% %player% %gp_o_pr%%gp_h_js%%gp_o_su%%gp_n_ui%%gp_n_fp%'
+
+## Velocity
+# Check prevents the player from using any type of anti-knockback hacks.
+velocity:
+  # Enable this check?
+  enable: true
+
+  # The time to wait for players to respond to velocity (ticks)
+  # If the player does not respond to velocity after that
+  # time, the player will be detected.
+  wait_time: 38
+
+  # Ignore lag player, this feature can ignore the player who
+  # is lagging or changing resource pack.
+  ignore_lag: true
+
+  # The VL weight of velocity check modules (-1 = disable)
+  modules:
+    respond: 5
+    analyser: 3
+    vertical: 1
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 3
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    10: 'matrix notify &f[&a!&f] &a%player% &7(Velocity) -h %gp_c_hm% -c %gp_r_cc%'
+    15: 'matrix notify &f[&e!&f] &e%player% &7(Velocity) -h %gp_c_hm% -c %gp_r_cc%'
+    18: 'matrix notify &f[&6!&f] &6%player% &7(Velocity) -h %gp_c_hm% -c %gp_r_cc%'    
+    27: 'matrix notify &f[&c!&f] &c%player% &7(Velocity) -h %gp_c_hm% -c %gp_r_cc%'
+    50: 'coc %player% if -ping-<100 do matrix notify &a%player% &7was banned'    
+    58: 'matrix kick %player% Velocity/Anti-Knockback'    
+
+chat:
+  enable: false
+  min_time: 3
+  cancel_vl: 3
+  decay:
+    interval: 30
+    amount: 5
+  commands:
+    4: ''
+
+interact:
+  enable: false
+  check_interact_block: false
+  check_attack: false
+  decay:
+    interval: 0
+    amount: 0
+  commands:
+    10: ''
+
+#─── Jesus ────────────────────╮
+# prevents the player people   │ 
+# glitching through blocks     │
+#──────────────────────────────╯
+phase:
+  # Enable this check?
+  enable: true
+
+  # How much time should Matrix prevent the player from moving if
+  # the player frequently tries to move the block? (milliseconds)
+  freeze_time: 400
+
+  # Violations needed to cancel illegal movements
+  cancel_vl: 5
+
+  # Should Matrix prevent players from using Ender Pearl for close range teleportation?
+  prevent_close_range_enderpearl: true
+
+  # Exlude block types
+  exclude_types: []
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 10
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    1: ''
+
+autobot:
+  enable: true
+  decay:
+    interval: 0
+    amount: 0
+  commands:
+    1: ''
+
+## Elytra
+# Checks prevents player using Elytra+, ElytraFlight, etc
+# Only works for 1.9+
+elytra:
+  # Enable this check?
+  enable: true
+
+  # Should Matrix be forced to pull back players who are particularly
+  # cheating? Even if they do not reach cancel_vl (default: true)
+  force_setback: true
+
+  # Setback violation level (-1 = never setback)
+  setback_vl: 5
+
+  # unequip elytra VL
+  # If player reached this VL, Matrix will make it out of the gliding state (-1 = disable this feature)
+  unequip_vl: 20
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 7
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    10: 'matrix notify %player% suspected using elytra flight (Elytra)'
+    20: 'matrix notify %player% suspected using elytra flight (Elytra) #2'
+    40: 'matrix kick %player% Elytra Flight'
+
+## Vehicle
+# Checks prevents player using VehicleFlight, VehicleSpeed, EntitySpeed..
+# Only works for 1.9+
+vehicle:
+  # Enable this check?
+  enable: true
+
+  # Prevent players from using certain creatures as vehicles
+  # All entity types: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
+  deny_entity_types_as_vehicle:
+    - 'LLAMA'
+
+  # Vehicle Speed/ Entity Speed
+  speed:
+    # Enable this modules?
+    enable: true
+
+    # setback VL (-1 = disable setback)
+    setback_vl: 2
+
+  # Vehicle Flight / Boat Flight
+  flight:
+    # Enable this modules?
+    enable: true
+
+    # setback vl (-1 = never setback)
+    setback_vl: 4
+
+    # leave vehicle vl (-1 = never leave vehicle)
+    leave_vehicle: 10
+
+  # Custom vl decay interval(seconds) and vl decay step size
+  decay:
+    interval: 15
+    amount: 5
+
+  # Violation Thresholds
+  # number_of_violations: '<command>'
+  commands:
+    5: 'matrix notify %player% suspected using vehicle cheat (Vehicle)'
+    10: 'matrix notify %player% suspected using vehicle cheat (Vehicle) #2'
+    17: 'matrix kick %player% Suspicious vehicle movement'
